@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+__pycache__
+migrations
+=======
+>>>>>>> cb31122 (Ignore log file)
 app.log
 *.log
 app.log
