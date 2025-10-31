@@ -1,0 +1,63 @@
+
+.camera-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(122, 119, 119, 0.1);
+    background-color: #fff;
+}
+
+.camera-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f1f3f5;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.camera-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #fff;
+}
+
+.status.active {
+    background-color: #021d08;
+}
+
+.status.inactive {
+    background-color: #d4c5c6;
+}
+
+.video-container {
+    position: relative;
+    background-color: #000;
+    height: 220px;
+}
+
+.video-placeholder {
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}   
+.video-stream{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.right-card {
+    position: sticky;
+    top: 20px;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}

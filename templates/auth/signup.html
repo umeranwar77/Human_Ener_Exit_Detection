@@ -1,0 +1,32 @@
+{% extends "auth/base_auth.html" %}
+
+{% block title %}Sign Up - Human Detection System{% endblock %}
+
+{% block auth_image %}/static/images/auth.webp{% endblock %}
+
+{% block auth_title %}Get Started{% endblock %}
+
+{% block auth_subtitle %}Create your account{% endblock %}
+
+{% block auth_form %}
+<form method="POST" action="/auth/signup">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <div class="form-group">
+        <label>Username</label>
+        <input type="text" name="username" class="form-control" placeholder="Choose a username" required>
+    </div>
+    <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+    </div>
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" class="form-control" placeholder="Create a password" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Create Account</button>
+</form>
+{% endblock %}
+
+{% block auth_links %}
+<a href="/auth/login">Sign in</a>
+{% endblock %}

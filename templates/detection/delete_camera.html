@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Camera - Human Detection System{% endblock %}
+
+{% block head %}
+<style>
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #cdfaefab 0%, #c5fdea0a 100%);
+    padding: 20px;
+}
+.auth-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+    max-width: 900px;
+    width: 100%;
+    display: flex;
+    min-height: 500px;
+}
+.auth-image {
+    flex: 1;
+    background: url('/static/images/hand-held-tally-counter-counting-600nw-1809908110.webp') center/cover;
+    position: relative;
+}
+.auth-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(173, 248, 219, 0.19);
+}
+.auth-form-section {
+    flex: 1;
+    padding: 60px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.auth-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+}
+.auth-subtitle {
+    color: #666;
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 1rem;
+}
+.camera-info {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-left: 4px solid #dc3545;
+}
+.camera-info h4 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+.camera-info p {
+    color: #666;
+    margin: 5px 0;
+    font-size: 0.9rem;
+}
+.btn-danger {
+    background: linear-gradient(135deg, #ff4757 0%, #c44569 100%);
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    width: 100%;
+    margin-top: 10px;
+}
+.btn-danger:hover {
+    transform: translateY(-2px);
+}
+.btn-secondary {
+    background: #6c757d;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    width: 100%;
+    margin-top: 10px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    color: white;
+    text-decoration: none;
+}
+.auth-links {
+    text-align: center;
+    margin-top: 30px;
+}
+.auth-links a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    margin: 0 10px;
+}
+.auth-links a:hover {
+    text-decoration: underline;
+}
+.alert {
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+.warning-text {
+    color: #dc3545;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 20px;
+}
+@media (max-width: 768px) {
+    .auth-card {
+        flex-direction: column;
+        max-width: 400px;
+    }
+    .auth-image {
+        min-height: 200px;
+    }
+    .auth-form-section {
+        padding: 40px 30px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-image"></div>
+        <div class="auth-form-section">
+            <h1 class="auth-title">Delete Camera</h1>
+            <p class="auth-subtitle">Remove camera from system</p>
+            
+            <div id="message"></div>
+            
+            <div class="camera-info">
+                <h4>{{ camera.name }}</h4>
+                <p><strong>RTSP URL:</strong> {{ camera.rtsp_url }}</p>
+                <p><strong>Status:</strong> {{ 'Active' if camera.is_active else 'Inactive' }}</p>
+            </div>
+            
+            <div class="warning-text">
+                ⚠️ This action cannot be undone. The camera will be permanently removed from the system.
+            </div>
+            
+            <button id="deleteBtn" class="btn btn-danger" onclick="deleteCamera()">Delete Camera</button>
+            <a href="/detection/dashboard" class="btn btn-secondary">Cancel</a>
+            
+            <div class="auth-links">
+                <a href="/detection/dashboard">Back to Dashboard</a>
+                <a href="/auth/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function deleteCamera() {
+    if (!confirm('Are you sure you want to delete this camera? This action cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/detection/delete_camera/{{ camera.id }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            document.getElementById('message').innerHTML = '<div class="alert alert-success">' + result.message + '</div>';
+            setTimeout(() => window.location.href = '/detection/dashboard', 2000);
+        } else {
+            document.getElementById('message').innerHTML = '<div class="alert alert-error">' + result.error + '</div>';
+        }
+    } catch (error) {
+        document.getElementById('message').innerHTML = '<div class="alert alert-error">Failed to delete camera</div>';
+    }
+}
+</script>
+{% endblock %}
