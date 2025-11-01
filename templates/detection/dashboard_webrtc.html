@@ -160,7 +160,6 @@
     color: white;
 }
 
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
@@ -343,8 +342,6 @@
         </div>
     </div>
 </div>
-
-<!-- Modal -->
 <div id="addCameraModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -399,7 +396,6 @@ socket.on("people_count", (data) => {
     if (exitEl) exitEl.textContent = data.exit;
 });
 
-// Modal Functions
 function openModal() {
     document.getElementById('addCameraModal').style.display = 'block';
     document.getElementById('addCameraForm').reset();
@@ -441,12 +437,8 @@ async function submitCamera() {
         if (response.ok) {
             document.getElementById('modalMessage').innerHTML =
                 '<div class="alert alert-success">' + result.message + '</div>';
-            
-            // Add camera to grid dynamically
-            const cameraId = result.camera_id || Date.now(); // Use returned ID or timestamp
+            const cameraId = result.camera_id || Date.now(); 
             addCameraToGrid(cameraId, form.elements['name'].value);
-            
-            // Initialize WebRTC connection for new camera
             initializeCameraConnection(cameraId);
             
             setTimeout(() => {
@@ -689,7 +681,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
             const conn = cameraConnections[cameraId];
             const socketConnected = conn.socket?.connected || false;
             const peerState = conn.peerConnection?.connectionState || 'none';
-            console.log(`🔍 Camera ${cameraId} - Socket: ${socketConnected}, WebRTC: ${peerState}`);
+
         });
     }, 10000);
     

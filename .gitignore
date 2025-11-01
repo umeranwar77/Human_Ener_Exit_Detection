@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 __pycache__
 migrations
+.pyc
 =======
 >>>>>>> cb31122 (Ignore log file)
 app.log
@@ -9,8 +10,7 @@ app.log
 *.pyc
 *.pyo
 *.pyd
-__pycache__/
-
+__pycache__
 env/
 venv/
 *.log
