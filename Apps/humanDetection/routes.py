@@ -58,15 +58,15 @@ def add_camera():
         try:
             db.session.add(camera)
             db.session.commit()
-            return jsonify({"message": "Camera added successfully"}), 201
+            return jsonify({
+                "message": "Camera added successfully",
+                "camera_id": camera.id
+            }), 201
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
 
     return render_template("detection/add_camera.html")
-
-
-
 @detection.route("/update_camera/<int:camera_id>", methods=["GET", "POST"])
 @login_required
 def update_camera(camera_id):
@@ -78,7 +78,6 @@ def update_camera(camera_id):
         rtsp_url = data.get("rtsp_url")
         if not name or not rtsp_url:
             return jsonify({"error": "Name and RTSP URL are required"}), 400
-
         try:
             camera.name = name
             camera.rtsp_url = rtsp_url

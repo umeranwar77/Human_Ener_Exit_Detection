@@ -11,6 +11,7 @@ from .centroid_tracker import CentroidTracker
 from app import socketio
 from multiprocessing import Process
 import time
+from threading import Thread
 
 
 
@@ -70,30 +71,36 @@ class SharedFrameManager:
             source = 0
         else:
             source = rtsp_url
-        cap = None
-        for _ in range(5):  
+        for _ in range(5):
             cap = cv2.VideoCapture(source)
             if video_file:
                 cap.set(cv2.CAP_PROP_FPS, 30)
             if cap.isOpened():
                 break
             cv2.waitKey(1000)
-        
-        if not cap or not cap.isOpened():
+
+        if not cap.isOpened():
             print(f"Failed to open camera {camera_id}")
             self.running[camera_id] = False
             return
-        
+
         prev_time = time.time()
-        
+        process_thread = None
+
         while self.running.get(camera_id, False):
             ret, frame = cap.read()
-            
             if ret:
                 frame = cv2.resize(frame, (640, 480))
-                processed = process_frame(frame, camera_id, detection_enabled=True)
-                with self.locks[camera_id]:
-                    self.frames[camera_id] = processed.copy()
+
+                # ✅ If previous thread still busy → skip frame
+                if process_thread is None or not process_thread.is_alive():
+                    process_thread = Thread(
+                        target=process_frame_thread,
+                        args=(frame, camera_id, self.locks[camera_id], self.frames)
+                    )
+                    process_thread.start()
+
+                # Handle video FPS clock
                 if video_file:
                     fps = cap.get(cv2.CAP_PROP_FPS) or 30
                     frame_delay = max(1.0 / min(fps, 30), 0.03)
@@ -102,16 +109,16 @@ class SharedFrameManager:
                     if diff < frame_delay:
                         time.sleep(frame_delay - diff)
                     prev_time = time.time()
+
             else:
                 with self.locks[camera_id]:
                     self.frames[camera_id] = offline_frame(camera_id)
-                
+
                 if video_file:
-                  
                     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 else:
                     time.sleep(0.1)
-    
+
         cap.release()
         print(f"Camera {camera_id} processing thread stopped")
     
@@ -138,6 +145,11 @@ class SharedFrameManager:
 
         return self.running.get(str(camera_id), False)
 frame_manager = SharedFrameManager()
+
+def process_frame_thread(frame, camera_id, lock, frames):
+        processed = process_frame(frame, camera_id, detection_enabled=True)
+        with lock:
+            frames[camera_id] = processed.copy()
 
 class CameraVideoTrack(VideoStreamTrack):
     def __init__(self, camera_id):
