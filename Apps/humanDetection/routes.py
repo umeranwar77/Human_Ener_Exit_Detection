@@ -54,7 +54,6 @@ def add_camera():
             rtsp_url=rtsp_url,
             video_file=file_path,
         )
-
         try:
             db.session.add(camera)
             db.session.commit()
@@ -86,7 +85,6 @@ def update_camera(camera_id):
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": f"Failed to update camera: {str(e)}"}), 500
-
     return render_template("detection/update_camera.html", camera=camera)
 
 
@@ -100,10 +98,8 @@ def delete_camera(camera_id):
         if camera_id in active_cameras:
             active_cameras[camera_id]["active"] = False
         Detection.query.filter_by(camera_id=camera_id).delete()
-
         db.session.delete(camera)
         db.session.commit()
-
         return jsonify({"message": "Camera deleted successfully"}), 200
 
     except Exception as e:

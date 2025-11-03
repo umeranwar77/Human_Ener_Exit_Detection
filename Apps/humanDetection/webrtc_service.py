@@ -91,16 +91,12 @@ class SharedFrameManager:
             ret, frame = cap.read()
             if ret:
                 frame = cv2.resize(frame, (640, 480))
-
-                # ✅ If previous thread still busy → skip frame
                 if process_thread is None or not process_thread.is_alive():
                     process_thread = Thread(
                         target=process_frame_thread,
                         args=(frame, camera_id, self.locks[camera_id], self.frames)
                     )
                     process_thread.start()
-
-                # Handle video FPS clock
                 if video_file:
                     fps = cap.get(cv2.CAP_PROP_FPS) or 30
                     frame_delay = max(1.0 / min(fps, 30), 0.03)
